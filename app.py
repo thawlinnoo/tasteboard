@@ -3,9 +3,9 @@ from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, EmailField
-from wtforms.validators import DataRequired, Length
-from flask_login import LoginManager, UserMixin, login_user, logout_user
+from wtforms import StringField, PasswordField, SubmitField, EmailField, TextAreaField, FloatField
+from wtforms.validators import DataRequired, Length, NumberRange
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from datetime import datetime, timezone
 
 app = Flask(__name__) #creates the flask app object nad store it in variable app 
@@ -77,12 +77,20 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
     
+class RestaurantPostForm(FlaskForm):
+    name = StringField("Restaurant Name", validators=[DataRequired()])
+    city = StringField("City", validators=[DataRequired()])
+    image_url = StringField("Put the Image URL address here", validators=[DataRequired()])
+    rating = FloatField("Rating out of 5", validators=[DataRequired(), NumberRange(min=0, max=5)])
+    review = TextAreaField("Review", validators=[DataRequired()])
+    submit = SubmitField("Post")
 
     
 
 @app.route("/") #homepage, connect url / to function below
 def home():
-    return render_template("index.html") #flask load index.html and process jinja codes inside it and return as html response and show in web browser
+    posts = RestaurantPost.query.order_by(RestaurantPost.date_posted.desc()).all() #load all the posts from db ordered by desc date and put into variable posts, 
+    return render_template("index.html", posts=posts) #flask load index.html and process jinja codes inside it and return as html response and show in web browser
 
 @app.route("/register", methods=["GET", "POST"]) #post method here is to receive the data send from html
 def register():
@@ -145,6 +153,32 @@ def logout():
     logout_user()
     flash("Logged out successfully")
     return redirect(url_for("home"))
+
+@app.route("/posts/new", methods=["GET", "POST"])
+def new_post():
+    if not current_user.is_authenticated:
+        flash("Please log in to create a post.")
+        return redirect(url_for("login"))
+
+    form = RestaurantPostForm()
+
+    if form.validate_on_submit():
+        post = RestaurantPost(
+            name=form.name.data,
+            city=form.city.data,
+            image_url=form.image_url.data,
+            rating=form.rating.data,
+            review=form.review.data,
+            user_id=current_user.id
+        )
+
+        db.session.add(post)
+        db.session.commit()
+
+        flash("Restaurant post created successfully.")
+        return redirect(url_for("home"))
+
+    return render_template("new_post.html", form=form)
 
 if __name__ == "__main__": #to check whether the file is running directly from this file.
     app.run(debug=True) #to reload the local server every time we save the file after editing

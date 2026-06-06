@@ -7,21 +7,43 @@
   <p>
     A restaurant sharing app with posts, comments, search, and admin moderation.
   </p>
-  <!-- current_user is the object that is automatically created by flask-login as soon as a user logged_in. -->
+  <!-- current_user is the object that is automatically created by flask-login as soon as a user logged_in. but only auto in html jinja, for app.py we need to import  -->
   {% if current_user.is_authenticated %}
     <p>
       You are logged in as {{ current_user.name }}.
     </p>
+    <a href="{{ url_for('new_post') }}" class="btn btn-primary mb-3">Create Post</a>
     <a href="{{ url_for('logout') }}" class="btn btn-danger">
       Logout
     </a>
+    <h2 class="mt-4">Restaurant Posts</h2>
+    {% if posts %}
+      {% for post in posts %} 
+          <div class="card mb-3">
+              <img src="{{ post.image_url }}" class="card-img-top" alt="{{ post.name }}">
+
+              <div class="card-body">
+                  <h5 class="card-title">{{ post.name }}</h5>
+                  <p class="card-text">{{ post.city }}</p>
+                  <p class="card-text">Rating: {{ post.rating }}/5</p>
+                  <p class="card-text">{{ post.review }}</p>
+                  <!-- post.author.name uses the relationships that is set in class RestaurantPost -->
+                  <p class="text-muted">Posted by {{ post.author.name }}</p> 
+              </div>
+          </div>
+      {% endfor %}
+    {% else %}
+    <p>No restaurant posts yet.</p>
+{% endif %}
   {% endif %}
-  <!-- by clicking the button, it will find the url for the function named register in app.py to reach there. -->
-  <a href="{{ url_for('register') }}" class="btn btn-primary"> 
-    Register
-  </a>
-  <a href="{{ url_for('login') }}" class="btn btn-primary">
-    Login
-  </a>
+  {% if not current_user.is_authenticated %}
+    <!-- by clicking the button, it will find the url for the function named register in app.py to reach there. -->
+    <a href="{{ url_for('register') }}" class="btn btn-primary"> 
+      Register
+    </a>
+    <a href="{{ url_for('login') }}" class="btn btn-primary">
+      Login
+    </a>
+  {% endif %}
 </div>
 {% endblock %}
