@@ -28,9 +28,36 @@
                   <p class="card-text">Rating: {{ post.rating }}/5</p>
                   <p class="card-text">{{ post.review }}</p>
                   <!-- post.author.name uses the relationships that is set in class RestaurantPost -->
-                  <p class="text-muted">Posted by {{ post.author.name }}</p> 
+                  <p class="text-muted">Posted by {{ post.author.name }} on {{ post.date_posted.strftime("%b %d, %Y") }}</p> 
               </div>
-          </div>
+              <hr>
+              <h6>Comments</h6>
+              <!-- I can do post.comments, comment.author.name, comment.text because I already set the relationships in classes -->
+              {% if post.comments %}
+                {% for comment in post.comments %}
+                  <div class="mb-2">
+                    <strong>{{ comment.author.name }}</strong>:
+                    {{ comment.text }}
+                  </div>
+                {% endfor %}
+              {% else %}
+                  <p class="text-muted">No comments yet.</p>
+              {% endif %}
+
+              <!-- send the commented post_id back to the route url with function "add_comment"  -->
+              <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
+                {{ comment_form.hidden_tag() }}
+
+                <div class="mb-2">
+                  <!-- get the comment_form object we return from def home -->
+                  {{ comment_form.text(class="form-control", rows="2", placeholder="Write a comment...") }} 
+                </div>
+
+                {{ comment_form.submit(class="btn btn-sm btn-outline-primary") }}
+              </form>
+
+
+          </div
       {% endfor %}
     {% else %}
     <p>No restaurant posts yet.</p>

@@ -8,6 +8,8 @@ from wtforms.validators import DataRequired, Length, NumberRange
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from datetime import datetime, timezone
 
+
+
 app = Flask(__name__) #creates the flask app object nad store it in variable app 
 app.config["SECRET_KEY"] = "dev-secret-key"
 
@@ -21,6 +23,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasteboard.db" #create or use
 
 db = SQLAlchemy(app) #connect Flask app with db
 
+#--------------------------------
+
+# table blueprints classes 
 class User(UserMixin, db.Model): #creating blueprints for tables, python models that describe the db tables. UserMixin allow flask to use some methods, especially we need to get the user_id once the user logged in. so UserMixin allow to get user_id from this class and use it in flask-login.
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
@@ -32,9 +37,6 @@ class User(UserMixin, db.Model): #creating blueprints for tables, python models 
     posts = db.relationship("RestaurantPost", back_populates="author") #relationships are python shortcut to access linked data between tables in code
     comments = db.relationship("Comment", back_populates="author")
 
-@login_manager.user_loader #after the flask-login saved the logged_in user_id by using UserMixin, it finds and get the whole user object from database by using user_loader, especially when user refresh page or load another page or app need to used saved user_id to know who is currently logged in, flask-login already saved the logged_in user's id in session
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 class RestaurantPost(db.Model):
     __tablename__ = "restaurant_posts"
@@ -63,9 +65,20 @@ class Comment(db.Model):
     author = db.relationship("User", back_populates="comments")
     restaurant_post = db.relationship("RestaurantPost", back_populates="comments")
 
+#-----------------------
+  
+
 with app.app_context(): #using app_context method, create tables in db by using all the db.model classes set in flask app
     db.create_all()
 
+@login_manager.user_loader #after the flask-login saved the logged_in user_id by using UserMixin, it finds and get the whole user object from database by using user_loader, especially when user refresh page or load another page or app need to used saved user_id to know who is currently logged in, flask-login already saved the logged_in user's id in session
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+#---------------------------
+
+#form blueprints
 class RegisterForm(FlaskForm): #create the blueprint of the form
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
@@ -85,12 +98,21 @@ class RestaurantPostForm(FlaskForm):
     review = TextAreaField("Review", validators=[DataRequired()])
     submit = SubmitField("Post")
 
-    
+class CommentForm(FlaskForm):
+    text = TextAreaField("Comment", validators=[DataRequired()])
+    submit = SubmitField("Comment")
+
+
+#----------------------------
+
+
+#routes  
 
 @app.route("/") #homepage, connect url / to function below
 def home():
     posts = RestaurantPost.query.order_by(RestaurantPost.date_posted.desc()).all() #load all the posts from db ordered by desc date and put into variable posts, 
-    return render_template("index.html", posts=posts) #flask load index.html and process jinja codes inside it and return as html response and show in web browser
+    comment_form = CommentForm() 
+    return render_template("index.html", posts=posts, comment_form=comment_form) #flask load index.html and process jinja codes inside it and return as html response and show in web browser
 
 @app.route("/register", methods=["GET", "POST"]) #post method here is to receive the data send from html
 def register():
@@ -179,6 +201,29 @@ def new_post():
         return redirect(url_for("home"))
 
     return render_template("new_post.html", form=form)
+
+@app.route("/posts/<int:post_id>/comments", methods=["GET", "POST"]) #"<int:post_id>"get the post_id that user write comment on, post_id will be get from index.html
+def add_comment(post_id):
+    if not current_user.is_authenticated:
+        flash("Please log in to comment.")
+        return redirect(url_for("login"))
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(
+            text=form.text.data,
+            user_id=current_user.id,
+            restaurant_post_id=post_id
+        )
+        db.session.add(comment)
+        db.session.commit()
+
+        flash("Comment added successfully")
+    return redirect(url_for("home"))
+
+
+
+
+
 
 if __name__ == "__main__": #to check whether the file is running directly from this file.
     app.run(debug=True) #to reload the local server every time we save the file after editing
