@@ -1,10 +1,27 @@
 {% extends "base.html" %} 
 
 {% block content %}
-<div class="container mt-5">
+<!-- bootstrap class is the pre written CSS shortcut..  -->
+<div class="container mt-5"> 
   <h1>Welcome to TasteBoard</h1>
   <p>
     A restaurant sharing app with posts, comments, search, and admin moderation.
   </p>
+  <!-- current_user is the object that is automatically created by flask-login as soon as a user logged_in. -->
+  {% if current_user.is_authenticated %}
+    <p>
+      You are logged in as {{ current_user.name }}.
+    </p>
+    <a href="{{ url_for('logout') }}" class="btn btn-danger">
+      Logout
+    </a>
+  {% endif %}
+  <!-- by clicking the button, it will find the url for the function named register in app.py to reach there. -->
+  <a href="{{ url_for('register') }}" class="btn btn-primary"> 
+    Register
+  </a>
+  <a href="{{ url_for('login') }}" class="btn btn-primary">
+    Login
+  </a>
 </div>
 {% endblock %}

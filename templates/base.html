@@ -10,7 +10,22 @@
     <link rel="stylesheet" href=""{{ url_for('static', filename='styles.css')}}
   </head>
   <body>
-    {% block content %} #where each page puts its own content since base.html is the main layout
+    <div class=""container mt-3>
+      <!-- by using flash, check any message to appeal to user and put it into messages variable -->
+      {% with messages = get_flashed_messages() %} 
+        {% if messages %}
+          {% for message in messages %}
+          <!-- bootstrap style for alert message -->
+            <div class="alert alert-info"> 
+              {{message}}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+    </div>
+    <!-- where each page puts its own content since base.html is the main shared layout -->
+    {% block content %} 
     {% endblock %}
 
     {{ bootstrap.load_js() }}

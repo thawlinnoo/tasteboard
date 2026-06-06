@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Create Account</h1>
+    <!-- post method here is to send the form data back to register route -->
+    <form method="POST"> 
+        <!-- adds the hidden CSRF security token required by Flask-WTF. the secret token auto include when the use send data, and the server verifies it by marching it with the one saved in user's active session. it prevents 3rd party actions. -->
+        {{ form.hidden_tag() }} 
+
+        <div class="mb-3">
+            <!-- show the label and make it as bootstrap style -->
+            {{ form.name.label(class="form-label") }} 
+            <!-- show the text input box and make it as bootstrap style -->
+            {{ form.name(class="form-control") }} 
+        </div>
+
+        <div class="mb-3">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control") }}
+        </div>
+
+        {{ form.submit(class="btn btn-primary") }}
+
+    </form>
+</div>
+{% endblock %}
