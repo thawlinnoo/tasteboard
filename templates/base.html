@@ -7,10 +7,10 @@
 
     {{ bootstrap.load_css() }}
 
-    <link rel="stylesheet" href=""{{ url_for('static', filename='styles.css')}}
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
   </head>
   <body>
-    <div class=""container mt-3>
+    <div class="container mt-3">
       <!-- by using flash, check any message to appeal to user and put it into messages variable -->
       {% with messages = get_flashed_messages() %} 
         {% if messages %}

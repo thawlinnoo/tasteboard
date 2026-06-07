@@ -23,6 +23,7 @@ Bootstrap5(app) #connect the Bootstrap styling
 
 login_manager = LoginManager() #create login manager object and connect it with flask app
 login_manager.init_app(app) 
+login_manager.login_view = "login" #this send the unauthorized user to login route.
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
     "DB_URI",
@@ -89,7 +90,7 @@ def load_user(user_id):
 #form blueprints
 class RegisterForm(FlaskForm): #create the blueprint of the form
     name = StringField("Name", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
     submit = SubmitField("Register")
 
@@ -177,7 +178,7 @@ def login():
 
         if not user:
             flash("No account found with that email.")
-            return redirect(url_for("Login"))
+            return redirect(url_for("login"))
         
         if not check_password_hash(user.password_hash, form.password.data): #automatically switch user's input password in form into hash format to compare with the one saved in db
             flash("Incorrect password.")
@@ -219,7 +220,7 @@ def new_post():
 
     return render_template("new_post.html", form=form)
 
-@app.route("/posts/<int:post_id>/comments", methods=["GET", "POST"]) #"<int:post_id>"get the post_id that user write comment on, post_id will be get from index.html
+@app.route("/posts/<int:post_id>/comments", methods=["POST"]) #"<int:post_id>"get the post_id that user write comment on, post_id will be get from index.html
 @login_required #it checks if user is logged in or not
 def add_comment(post_id):
 
@@ -236,7 +237,7 @@ def add_comment(post_id):
         flash("Comment added successfully")
     return redirect(url_for("home"))
 
-@app.route("/posts/<int:post_id>/delete", methods=["GET", "POST"])
+@app.route("/posts/<int:post_id>/delete", methods=["POST"])
 @login_required
 def delete_post(post_id):
     post = RestaurantPost.query.get_or_404(post_id) #get_or_404 will return error 404 if the id is not found
@@ -252,7 +253,7 @@ def delete_post(post_id):
     flash("Post deleted successfully.")
     return redirect(url_for("home"))
 
-@app.route("/comments/<int:comment_id>/delete", methods=["GET", "POST"])
+@app.route("/comments/<int:comment_id>/delete", methods=["POST"]) #only post method because this route only need to open when user click button in html
 @login_required
 def delete_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
