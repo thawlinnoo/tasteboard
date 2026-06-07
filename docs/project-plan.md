@@ -12,13 +12,15 @@ TasteBoard is a Flask web app where users can share restaurant posts, comment on
 - Users can view all restaurant posts
 - Users can comment on posts
 - Users can search by restaurant name or city
+- Users can edit its own post
 - Admin can delete any post
+- Admin can edit any post
 - Admin can delete any comment
 
 ## Out of Scope for MVP
 
-- Real image upload
+- Send OTP code to user email when register by using smtplib
 - Google Maps API
 - Restaurant external API
-- Payment/reservation system
-- Real-time chat
+
+

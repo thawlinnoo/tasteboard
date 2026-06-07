@@ -1,50 +1,50 @@
-# Build Process
+## Created GitHub repo
+Created tasteboard, cloned it to Mac, checked git status.
 
-## Step 1: Created Flask App Skeleton
+## Created project planning docs
+Added docs like project plan, database design, build process.
 
-Created the basic project structure for the Flask application.
+## Set up Flask project skeleton
+Created app.py, templates/, static/, requirements.txt.
 
-Files/folders created:
-- app.py
-- templates/
-- static/
-- requirements.txt
-- docs/
+## Created basic homepage
+Made / route in app.py, base.html as shared layout, and index.html as homepage.
 
-## Step 2: Set Up Base Layout
+## Connected database
+Added SQLAlchemy, SQLite database URI, and db = SQLAlchemy(app).
 
-Created `base.html` as the main layout file.
+## Created database models
+Added User, RestaurantPost, and Comment models in app.py.
 
-This file contains the shared HTML structure used by other pages, including:
-- HTML head
-- Bootstrap CSS
-- custom CSS link
-- content block
+## Created database tables
+Used db.create_all() inside app.app_context().
 
-## Step 3: Created Initial Home Page
+## Added register system
+Created RegisterForm, /register route, and register.html.
 
-Created `index.html` and extended the layout from `base.html`.
+## Added login system
+Added Flask-Login, LoginForm, /login route, login.html, UserMixin, and user_loader.
 
-The homepage currently shows the initial TasteBoard welcome content.
+## Added logout system
+Added /logout route and showed logout button when user is logged in.
 
-## Step 4: Created Home Page Route
+## Added restaurant post creation
+Created RestaurantPostForm, /posts/new route, and new_post.html.
 
-Created the `/` route in `app.py`.
+## Displayed posts on homepage
+Queried posts from database and looped them in index.html.
 
-This route renders `index.html` when the user visits the homepage.
+## Added comments
+Created CommentForm, comment route, and displayed comments under each post.
 
-## Step 5: Connected Flask App with Database
+## Added delete post/comment
+Added delete routes with permission checks for owner/admin.
 
-Added Flask-SQLAlchemy to the project.
+## Added edit post
+Reused RestaurantPostForm, created /posts/<post_id>/edit, and added edit_post.html.
 
-Configured the SQLite database using:
+## Added search
+Used GET search with q, request.args, and SQLAlchemy filtering by restaurant name or city.
 
-python
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasteboard.db"
-db = SQLAlchemy(app)
-
-## Step 6: Created Database Tables
-
-Imported the `app` and `db` objects from `app.py` in the Python shell.
-
-Used `app.app_context()` to give SQLAlchemy access to the Flask app configuration, then ran `db.create_all()` to create the real SQLite database tables from the model classes.
+## Started CSS cleanup
+Added basic styling plan for cards, images, buttons, and layout.
