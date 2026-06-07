@@ -16,6 +16,28 @@
     <a href="{{ url_for('logout') }}" class="btn btn-danger">
       Logout
     </a>
+    <form method="GET" action="{{ url_for('home') }}" class="mb-3">
+      <div class="input-group">
+        <!-- set the input name as q, so when user search, url change and route will take the value from q, value is to keep the search value showing when the page load -->
+          <input 
+              type="text"  
+              name="q" 
+              class="form-control" 
+              placeholder="Search by restaurant name or city"
+              value="{{ search_query }}" 
+          >
+
+          <button type="submit" class="btn btn-outline-primary">
+              Search
+          </button>
+
+          {% if search_query %}
+              <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">
+                  Clear
+              </a>
+          {% endif %}
+      </div>
+    </form>
     <h2 class="mt-4">Restaurant Posts</h2>
     {% if posts %}
       {% for post in posts %} 

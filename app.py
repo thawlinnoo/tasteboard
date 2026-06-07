@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, EmailField, TextAreaField, FloatField
 from wtforms.validators import DataRequired, Length, NumberRange
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+from sqlalchemy import or_
 from datetime import datetime, timezone
 
 
@@ -110,9 +111,20 @@ class CommentForm(FlaskForm):
 
 @app.route("/") #homepage, connect url / to function below
 def home():
-    posts = RestaurantPost.query.order_by(RestaurantPost.date_posted.desc()).all() #load all the posts from db ordered by desc date and put into variable posts, 
+    search_query = request.args.get("q", "").strip() #get the value of q from url, use strip to remove unwanted char
+
+    if search_query:
+        posts = RestaurantPost.query.filter(
+            or_(
+                RestaurantPost.name.ilike(f"%{search_query}%"), #ilike remove case sensitive, it is not required to import for SQLalchemy
+                RestaurantPost.city.ilike(f"%{search_query}%"),
+            )
+        ).order_by(RestaurantPost.date_posted.desc()).all()
+    else:
+        posts = RestaurantPost.query.order_by(RestaurantPost.date_posted.desc()).all() #load all the posts from db ordered by desc date and put into variable posts, 
     comment_form = CommentForm() 
-    return render_template("index.html", posts=posts, comment_form=comment_form) #flask load index.html and process jinja codes inside it and return as html response and show in web browser
+
+    return render_template("index.html", posts=posts, comment_form=comment_form, search_query=search_query) #flask load index.html and process jinja codes inside it and return as html response and show in web browser
 
 @app.route("/register", methods=["GET", "POST"]) #post method here is to receive the data send from html
 def register():
