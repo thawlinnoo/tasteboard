@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Edit Restaurant Post</h1>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.city.label(class="form-label") }}
+            {{ form.city(class="form-control") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.image_url.label(class="form-label") }}
+            {{ form.image_url(class="form-control") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.rating.label(class="form-label") }}
+            {{ form.rating(class="form-control") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.review.label(class="form-label") }}
+            {{ form.review(class="form-control") }}
+        </div>
+
+        {{ form.submit(class="btn btn-primary") }}
+
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

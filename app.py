@@ -251,6 +251,34 @@ def delete_comment(comment_id):
 
 
 
+@app.route("/posts/<int:post_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_post(post_id):
+    post = RestaurantPost.query.get_or_404(post_id)
+
+
+    if current_user.id != post.user_id and not current_user.is_admin:
+        flash("You do not have permission to edit this post.")
+        return redirect(url_for("home"))
+
+    form = RestaurantPostForm(obj=post) #"obj=post" makes the form already filled with the current existing data in db
+
+    if form.validate_on_submit():
+        post.name = form.name.data #it updated the existing data from db
+        post.city = form.city.data
+        post.image_url = form.image_url.data
+        post.rating = form.rating.data
+        post.review = form.review.data
+
+        db.session.commit()
+
+        flash("Post updated successfully.")
+        return redirect(url_for("home"))
+
+    return render_template("edit_post.html", form=form, post=post)
+
+
+
 
 
 
