@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, EmailField, TextAreaField, FloatField
 from wtforms.validators import DataRequired, Length, NumberRange
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from datetime import datetime, timezone
 
 
@@ -51,7 +51,7 @@ class RestaurantPost(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False) #Foreign keys are the columns in db tables that connect to each other
 
     author = db.relationship("User", back_populates="posts")
-    comments = db.relationship("Comment", back_populates="restaurant_post")
+    comments = db.relationship("Comment", back_populates="restaurant_post", cascade="all, delete-orphan") #cascade="all, delete-orphan" is used to delete the child as well when we delete the parents, here if the post is deleted then the comments also need to be deleted
 
 class Comment(db.Model):
     __tablename__ = "comments"
@@ -177,10 +177,8 @@ def logout():
     return redirect(url_for("home"))
 
 @app.route("/posts/new", methods=["GET", "POST"])
+@login_required 
 def new_post():
-    if not current_user.is_authenticated:
-        flash("Please log in to create a post.")
-        return redirect(url_for("login"))
 
     form = RestaurantPostForm()
 
@@ -203,10 +201,9 @@ def new_post():
     return render_template("new_post.html", form=form)
 
 @app.route("/posts/<int:post_id>/comments", methods=["GET", "POST"]) #"<int:post_id>"get the post_id that user write comment on, post_id will be get from index.html
+@login_required #it checks if user is logged in or not
 def add_comment(post_id):
-    if not current_user.is_authenticated:
-        flash("Please log in to comment.")
-        return redirect(url_for("login"))
+
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(
@@ -219,6 +216,40 @@ def add_comment(post_id):
 
         flash("Comment added successfully")
     return redirect(url_for("home"))
+
+@app.route("/posts/<int:post_id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_post(post_id):
+    post = RestaurantPost.query.get_or_404(post_id) #get_or_404 will return error 404 if the id is not found
+    
+
+    if current_user.id != post.user_id and not current_user.is_admin:
+        flash("You do not have permission to delete this post.")
+        return redirect(url_for("home"))
+
+    db.session.delete(post)
+    db.session.commit()
+
+    flash("Post deleted successfully.")
+    return redirect(url_for("home"))
+
+@app.route("/comments/<int:comment_id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+
+
+    if current_user.id != comment.user_id and not current_user.is_admin:
+        flash("You do not have permission to delete this comment.")
+        return redirect(url_for("home"))
+
+    db.session.delete(comment)
+    db.session.commit()
+
+    flash("Comment deleted successfully.")
+    return redirect(url_for("home"))
+
+
 
 
 

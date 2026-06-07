@@ -30,15 +30,29 @@
                   <!-- post.author.name uses the relationships that is set in class RestaurantPost -->
                   <p class="text-muted">Posted by {{ post.author.name }} on {{ post.date_posted.strftime("%b %d, %Y") }}</p> 
               </div>
+              {% if current_user.id == post.user_id or current_user.is_admin %}
+                <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        Delete Post
+                    </button>
+                </form>
+              {% endif %}
               <hr>
               <h6>Comments</h6>
-              <!-- I can do post.comments, comment.author.name, comment.text because I already set the relationships in classes -->
+              <!-- post.comments, comment.author.name, comment.text can be called because the relationships are already set in classes -->
               {% if post.comments %}
                 {% for comment in post.comments %}
                   <div class="mb-2">
                     <strong>{{ comment.author.name }}</strong>:
                     {{ comment.text }}
                   </div>
+                  {% if current_user.id == comment.user_id or current_user.is_admin %}
+                    <form method="POST" action="{{ url_for('delete_comment', comment_id=comment.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Delete Comment
+                        </button>
+                    </form>
+                  {% endif %}
                 {% endfor %}
               {% else %}
                   <p class="text-muted">No comments yet.</p>
