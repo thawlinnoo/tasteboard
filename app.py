@@ -9,17 +9,24 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, curren
 from sqlalchemy import or_
 from datetime import datetime, timezone
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 
 app = Flask(__name__) #creates the flask app object nad store it in variable app 
-app.config["SECRET_KEY"] = "dev-secret-key"
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 Bootstrap5(app) #connect the Bootstrap styling
 
 login_manager = LoginManager() #create login manager object and connect it with flask app
 login_manager.init_app(app) 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasteboard.db" #create or use a SQLalchemy db object and connect it to flask app
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DB_URI",
+    "sqlite:///tasteboard.db") #create or use a SQLalchemy db object and connect it to flask app, DB_URI is to switch to PostgreSQL after deploy in render
 
 
 db = SQLAlchemy(app) #connect Flask app with db
