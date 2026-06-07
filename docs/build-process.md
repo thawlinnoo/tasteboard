@@ -48,3 +48,9 @@ Used GET search with q, request.args, and SQLAlchemy filtering by restaurant nam
 
 ## Started CSS cleanup
 Added basic styling plan for cards, images, buttons, and layout.
+
+## Deployment
+Deployed the Flask app on Render as a web service.
+
+## Database Deployment
+Switch Database from SQLite to Supabase PostgreSQL 
