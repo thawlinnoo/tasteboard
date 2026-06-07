@@ -1,9 +1,3 @@
-## Created GitHub repo
-Created tasteboard, cloned it to Mac, checked git status.
-
-## Created project planning docs
-Added docs like project plan, database design, build process.
-
 ## Set up Flask project skeleton
 Created app.py, templates/, static/, requirements.txt.
 
